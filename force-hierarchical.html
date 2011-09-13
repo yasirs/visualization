@@ -23,9 +23,9 @@ function readHierarchical(fname, nodelist) {
 			if (words.length>1) {
 				var src=words[1], trg=words[0];
 				if (nodelist.indexOf(trg)==-1) {
-					nodelist.append({"name":trg,"group":2});
+					nodelist.push({"name":trg,"group":2});
 				}
-				edgelist.append({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
+				edgelist.push({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
 			}
 		})
 	})
