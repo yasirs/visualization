@@ -157,8 +157,8 @@ force.on("tick", function(e) {
 	var yB = hlink.source.y, yT = hlink.target.y;
 	if (yB<(yT+20)) { hlink.source.y += Math.min(k,yT+20-yB); hlink.target.y -= Math.min(k,yT+20-yB);}
 	var xB = hlink.source.x, xT = hlink.target.x;
-	if (xB<(xT-20)) { hlink.source.x += k; hlink.target.x -= k;}
-	if (xB>(xT+20)) { hlink.source.x -= k; hlink.target.x += k;}
+	if (xB<(xT-20)) { hlink.source.x += Math.min(k,xT-20-xB); hlink.target.x -= Math.min(k,xT-20-xB);}
+	if (xB>(xT+20)) { hlink.source.x -= Math.min(k,xB-xT-20); hlink.target.x += Math.min(k,xB-xT-20);}
 	
   });
 
