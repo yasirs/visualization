@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Force-Directed Layout (Multiple Foci)</title>
+    <script type="text/javascript" src="d3.js"></script>
+    <script type="text/javascript" src="d3.geom.js"></script>
+    <script type="text/javascript" src="d3.layout.js"></script>
+  </head>
+  <body>
+    <div id="chart"></div>
+    <script type="text/javascript">
+
+var w = 960,
+    h = 500,
+    fill = d3.scale.category10();
+
+function readHeirarchical(fname) {
+	var lines = d3.text(fname).split("\n");
+	
+
+var nodes = [{"name":"a","group":0},{"name":"b","group":0},{"name":"c","group":1},{"name":"d","group":1},{"name":"e","group":2},{"name":"0","group":3},{"name":"1","group":3},{"name":2,"group":3},{"name":"3","group":3}];
+var ordLinks = [{"source":0,"target":1},{"source":2,"target":4},{"source":3,"target":4}];
+var hLinks = [{"source":0,"target":5},{"source":1,"target":5},{"source":2,"target":6},{"source":3,"target":6},{"source":4,"target":7},{"source":6,"target":7},{"source":5,"target":8},{"source":7,"target":8}]
+
+var vis = d3.select("#chart").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+
+var force = d3.layout.force()
+    .charge(-120)
+    .linkDistance(30)
+    .nodes(nodes)
+    .links(ordLinks.concat(hLinks))
+    .size([w, h])
+    .start();
+
+var link = vis.selectAll("line.link")
+      .data(ordLinks.concat(hLinks))
+    .enter().append("svg:line")
+      .attr("stroke", "#999")
+      .style("stroke-width", 1)
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+
+var node = vis.selectAll("circle.node")
+    .data(nodes)
+  .enter().append("svg:circle")
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })
+    .attr("r", 8)
+    .style("fill", function(d, i) { return fill(d.group); })
+    .call(force.drag);
+
+node.append("svg:title")
+      .text(function(d) { return d.name; });
+
+
+vis.style("opacity", 1e-6)
+  .transition()
+    .duration(1000)
+    .style("opacity", 1);
+
+force.on("tick", function(e) {
+
+  // Push different nodes in different directions for clustering.
+  var k = 10 * e.alpha;
+  hLinks.forEach(function(hlink) {
+	var yB = hlink.source.y, yT = hlink.target.y;
+	if (yB<(yT+10)) { hlink.source.y += k; hlink.target.y -= k;}
+  });
+
+  node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+
+  link.attr("x1", function(d) { return d.source.x; })
+       .attr("y1", function(d) { return d.source.y; })
+       .attr("x2", function(d) { return d.target.x; })
+       .attr("y2", function(d) { return d.target.y; });
+
+
+
+});
+
+d3.select("body").on("click", function() {
+  nodes.forEach(function(o, i) {
+    o.x += (Math.random() - .5) * 40;
+    o.y += (Math.random() - .5) * 40;
+  });
+  force.resume();
+});
+
+    </script>
+  </body>
+</html>
