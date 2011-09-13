@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Force-Directed Layout (Multiple Foci)</title>
+    <title>Force-Directed Layout with hierarchical structure</title>
     <script type="text/javascript" src="d3/d3.js"></script>
     <script type="text/javascript" src="d3/d3.geom.js"></script>
     <script type="text/javascript" src="d3/d3.layout.js"></script>
@@ -14,48 +14,75 @@ var w = 960,
     h = 500,
     fill = d3.scale.category10();
 
-function readEdges(fname,nodelist) {
-	var edgelist =[];
-	d3.text(fname, function(textRead) {
-		var lines = textRead.split("\n");
-		lines.forEach(function(line) {
-			var words= line.split('\t');
-			if (words.length>1) {
-				var src=words[0], trg=words[1];
-				if (nodelist.indexOf(src)==-1) {
-					nodelist.push({"name":src,"group":1});
+var readFiles = function(fEdges, fHier) {
+
+	var myIndex = function(myList,myName) {
+		for (var i = myList.length-1; i>=0; i--) {
+			if (myList[i]["name"]===myName) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	function readEdges(fname) {
+		var nodelist= [];
+		var edgelist =[];
+		d3.text(fname, function(textRead) {
+			var lines = textRead.split("\n");
+			for (var i = 0; i< lines.length; i++) {
+				line = lines[i];
+				var words= line.split('\t');
+				if (words.length>1) {
+					var src=words[0], trg=words[1];
+					if (myIndex(nodelist,src)==-1) {
+						nodelist.push({"name":src,"group":1});
+					}
+					if (myIndex(nodelist,trg)==-1) {
+						nodelist.push({"name":trg,"group":1});
+					}
+					edgelist.push({"source":myIndex(nodelist,src),"target":myIndex(nodelist,trg)});
 				}
-				if (nodelist.indexOf(trg)==-1) {
-					nodelist.push({"name":trg,"group":1});
-				}
-				edgelist.push({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
 			}
 		})
-	})
-	return edgelist;
-}
+		return [edgelist,nodelist];
+	}
+	
+	
+	function readHierarchical(fname, oldnodes) {
+		var hedgelist = [];
+		var newnodes = oldnodes.concat([]);
+		d3.text(fname, function(textRead) {
+			var lines = textRead.split("\n");
+			for (var i = 0; i< lines.length; i++) {
+				line = lines[i];
+				var words= line.split('\t');
+				if (words.length>1) {
+					var src=words[1], trg=words[0];
+					if (myIndex(newnodes,trg)==-1) {
+						newnodes.push({"name":trg,"group":2});
+					}
+					hedgelist.push({"source":myIndex(newnodes,src),"target":myIndex(newnodes,trg)});
 
-
-function readHierarchical(fname, nodelist) {
-	var edgelist=[];
-	d3.text(fname, function(textRead) {
-		var lines = textRead.split("\n");
-		lines.forEach(function(line) {
-			var words= line.split('\t');
-			if (words.length>1) {
-				var src=words[1], trg=words[0];
-				if (nodelist.indexOf(trg)==-1) {
-					nodelist.push({"name":trg,"group":2});
 				}
-				edgelist.push({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
 			}
 		})
-	})
-	return edgelist;
+		return [hedgelist,newnodes];
+	}
+	var eReturn  = readEdges(fEdges);
+	var ordEdges = eReturn[0];
+	var ordNames = eReturn[1];
+
+	var hReturn  = readHierarchical(fHier,ordNames);
+	var hierEdges = hReturn[0];
+	var intNames = hReturn[1];
+	return [intNames,ordEdges,hierEdges];
 }
-var nodes=[];
-var ordLinks = readEdges("a.edges",nodes);
-var hLinks = readHierarchical("a.clusters",nodes);
+
+var dataRead = readFiles("a.edges","a.clusters");
+var nodes = dataRead[0];;
+var ordLinks = dataRead[1];
+var hLinks = dataRead[2];
 
 //var nodes = [{"name":"a","group":0},{"name":"b","group":0},{"name":"c","group":1},{"name":"d","group":1},{"name":"e","group":2},{"name":"0","group":3},{"name":"1","group":3},{"name":2,"group":3},{"name":"3","group":3}];
 //var ordLinks = [{"source":0,"target":1},{"source":2,"target":4},{"source":3,"target":4}];
