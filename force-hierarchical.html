@@ -18,7 +18,7 @@ function readHierarchical(fname) {
 	d3.text(fname, function(textRead) {
 		var lines = textRead.split("\n");
 		lines.forEach(function(line) {
-			src, trg = line.split('\t')
+			src, trg = line.split('\t');
 			console.log("src="+src+", trg="+trg);
 		})
 	}
