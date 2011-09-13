@@ -20,7 +20,7 @@ function readHierarchical(fname, nodelist) {
 		var lines = textRead.split("\n");
 		lines.forEach(function(line) {
 			var words= line.split('\t');
-			if (words.length()>1) {
+			if (words.length>1) {
 				var src=words[1], trg=words[0];
 				if (nodelist.indexOf(trg)==-1) {
 					nodelist.append({"name":trg,"group":2});
