@@ -26,7 +26,7 @@ function readHierarchical(fname, nodelist) {
 					nodelist.append({"name":trg,"group":2});
 				}
 				edgelist.append({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
-			console.log("src="+src+", trg="+trg);
+			}
 		})
 	})
 	return edgelist;
