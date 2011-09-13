@@ -21,7 +21,7 @@ var readData = function(fEdges, fHier) {
 		request.open('GET', fname, false);   
 		request.send(null);  
   
-		if (request.status == 0)
+		if (request.status == 200)
   			return request.responseText;
 		else
 			alert("Couldn't read file "+fname);
