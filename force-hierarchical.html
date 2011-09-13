@@ -14,7 +14,7 @@ var w = 960,
     h = 500,
     fill = d3.scale.category10();
 
-function readHeirarchical(fname) {
+function readHierarchical(fname) {
 	var lines = d3.text(fname).split("\n");
 	lines.forEach(function(line) {
 		src, trg = line.split('\t')
