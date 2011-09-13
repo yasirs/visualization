@@ -32,12 +32,12 @@ function readHierarchical(fname, nodelist) {
 	return edgelist;
 }
 var nodelist=[];
-var edgelist = readHierarchical("a.clusters",nodelist);
+var hLinks = readHierarchical("a.clusters",nodelist);
 
 var nodes = [{"name":"a","group":0},{"name":"b","group":0},{"name":"c","group":1},{"name":"d","group":1},{"name":"e","group":2},{"name":"0","group":3},{"name":"1","group":3},{"name":2,"group":3},{"name":"3","group":3}];
-var ordLinks = [{"source":0,"target":1},{"source":2,"target":4},{"source":3,"target":4}];
-var hLinks = [{"source":0,"target":5},{"source":1,"target":5},{"source":2,"target":6},{"source":3,"target":6},{"source":4,"target":7},{"source":6,"target":7},{"source":5,"target":8},{"source":7,"target":8}]
-
+//var ordLinks = [{"source":0,"target":1},{"source":2,"target":4},{"source":3,"target":4}];
+//var hLinks = [{"source":0,"target":5},{"source":1,"target":5},{"source":2,"target":6},{"source":3,"target":6},{"source":4,"target":7},{"source":6,"target":7},{"source":5,"target":8},{"source":7,"target":8}]
+var ordLinks=[];
 var vis = d3.select("#chart").append("svg:svg")
     .attr("width", w)
     .attr("height", h);
