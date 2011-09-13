@@ -14,6 +14,28 @@ var w = 960,
     h = 500,
     fill = d3.scale.category10();
 
+function readEdges(fname,nodelist) {
+	var edgelist =[];
+	d3.text(fname, function(textRead) {
+		var lines = textRead.split("\n");
+		lines.forEach(function(line) {
+			var words= line.split('\t');
+			if (words.length>1) {
+				var src=words[0], trg=words[1];
+				if (nodelist.indexOf(src)==-1) {
+					nodelist.push({"name":src,"group":1});
+				}
+				if (nodelist.indexOf(trg)==-1) {
+					nodelist.push({"name":trg,"group":1});
+				}
+				edgelist.push({"source":nodelist.indexOf(src),"target":nodelist.indexOf(trg)});
+			}
+		})
+	})
+	return edgelist;
+}
+
+
 function readHierarchical(fname, nodelist) {
 	var edgelist=[];
 	d3.text(fname, function(textRead) {
@@ -32,6 +54,7 @@ function readHierarchical(fname, nodelist) {
 	return edgelist;
 }
 var nodes=[];
+var ordLinks = readEdges("a.edges",nodes);
 var hLinks = readHierarchical("a.clusters",nodes);
 
 //var nodes = [{"name":"a","group":0},{"name":"b","group":0},{"name":"c","group":1},{"name":"d","group":1},{"name":"e","group":2},{"name":"0","group":3},{"name":"1","group":3},{"name":2,"group":3},{"name":"3","group":3}];
