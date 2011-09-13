@@ -15,11 +15,13 @@ var w = 960,
     fill = d3.scale.category10();
 
 function readHierarchical(fname) {
-	var lines = d3.text(fname).split("\n");
-	lines.forEach(function(line) {
-		src, trg = line.split('\t')
-		console.log("src="+src+", trg="+trg);
-	})
+	d3.text(fname, function(textRead) {
+		var lines = textRead.split("\n");
+		lines.forEach(function(line) {
+			src, trg = line.split('\t')
+			console.log("src="+src+", trg="+trg);
+		})
+	}
 }
 
 readHierarchical("a.clusters");
