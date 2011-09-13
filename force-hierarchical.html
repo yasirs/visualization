@@ -10,11 +10,23 @@
     <div id="chart"></div>
     <script type="text/javascript">
 
-var w = 960,
-    h = 500,
+var w = 1000,
+    h = 1000,
     fill = d3.scale.category10();
 
-var readFiles = function(fEdges, fHier) {
+var readData = function(fEdges, fHier) {
+
+	var readFile = function(fname) {
+		var request = new XMLHttpRequest();  
+		request.open('GET', fname, false);   
+		request.send(null);  
+  
+		if (request.status == 0)
+  			return request.responseText;
+		else
+			alert("Couldn't read file "+fname);
+			alert("status : "+request.status);
+	}
 
 	var myIndex = function(myList,myName) {
 		for (var i = myList.length-1; i>=0; i--) {
@@ -28,23 +40,22 @@ var readFiles = function(fEdges, fHier) {
 	function readEdges(fname) {
 		var nodelist= [];
 		var edgelist =[];
-		d3.text(fname, function(textRead) {
-			var lines = textRead.split("\n");
-			for (var i = 0; i< lines.length; i++) {
-				line = lines[i];
-				var words= line.split('\t');
-				if (words.length>1) {
-					var src=words[0], trg=words[1];
-					if (myIndex(nodelist,src)==-1) {
-						nodelist.push({"name":src,"group":1});
-					}
-					if (myIndex(nodelist,trg)==-1) {
-						nodelist.push({"name":trg,"group":1});
-					}
-					edgelist.push({"source":myIndex(nodelist,src),"target":myIndex(nodelist,trg)});
+		textRead = readFile(fname);
+		var lines = textRead.split("\n");
+		for (var i = 0; i< lines.length; i++) {
+			line = lines[i];
+			var words= line.split('\t');
+			if (words.length>1) {
+				var src=words[0], trg=words[1];
+				if (myIndex(nodelist,src)==-1) {
+					nodelist.push({"name":src,"group":1});
 				}
+				if (myIndex(nodelist,trg)==-1) {
+					nodelist.push({"name":trg,"group":1});
+				}
+				edgelist.push({"source":myIndex(nodelist,src),"target":myIndex(nodelist,trg),"type":"ordinary"});
 			}
-		})
+		}
 		return [edgelist,nodelist];
 	}
 	
@@ -52,21 +63,23 @@ var readFiles = function(fEdges, fHier) {
 	function readHierarchical(fname, oldnodes) {
 		var hedgelist = [];
 		var newnodes = oldnodes.concat([]);
-		d3.text(fname, function(textRead) {
-			var lines = textRead.split("\n");
-			for (var i = 0; i< lines.length; i++) {
-				line = lines[i];
-				var words= line.split('\t');
-				if (words.length>1) {
-					var src=words[1], trg=words[0];
-					if (myIndex(newnodes,trg)==-1) {
-						newnodes.push({"name":trg,"group":2});
-					}
-					hedgelist.push({"source":myIndex(newnodes,src),"target":myIndex(newnodes,trg)});
-
+		textRead = readFile(fname);
+		var lines = textRead.split("\n");
+		for (var i = 0; i< lines.length; i++) {
+			line = lines[i];
+			var words= line.split('\t');
+			if (words.length>1) {
+				var src=words[1], trg=words[0];
+				if (myIndex(newnodes,trg)==-1) {
+					newnodes.push({"name":trg,"group":2});
 				}
+				if (myIndex(newnodes,src)==-1) {
+					newnodes.push({"name":src,"group":2});
+				}
+				hedgelist.push({"source":myIndex(newnodes,src),"target":myIndex(newnodes,trg),"type":"hierarchical"});
+
 			}
-		})
+		}
 		return [hedgelist,newnodes];
 	}
 	var eReturn  = readEdges(fEdges);
@@ -79,7 +92,7 @@ var readFiles = function(fEdges, fHier) {
 	return [intNames,ordEdges,hierEdges];
 }
 
-var dataRead = readFiles("a.edges","a.clusters");
+var dataRead = readData("a.edges","a.clusters");
 var nodes = dataRead[0];;
 var ordLinks = dataRead[1];
 var hLinks = dataRead[2];
@@ -104,7 +117,7 @@ var link = vis.selectAll("line.link")
       .data(ordLinks.concat(hLinks))
     .enter().append("svg:line")
       .attr("stroke", "#999")
-      .style("stroke-width", 1)
+      .style("stroke-width", 3)
       .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
@@ -124,6 +137,12 @@ node.append("svg:title")
       .text(function(d) { return d.name; });
 
 
+link.append("svg:title")
+      .text(function(d) { if (d.type==="hierarchical") return (d.source.name + " => " + d.target.name); 
+				else return (d.source.name + " - " + d.target.name );
+			}); 
+
+
 vis.style("opacity", 1e-6)
   .transition()
     .duration(1000)
@@ -132,10 +151,14 @@ vis.style("opacity", 1e-6)
 force.on("tick", function(e) {
 
   // Push different nodes in different directions for clustering.
-  var k = 10 * e.alpha;
+  var k = 40 * e.alpha;
   hLinks.forEach(function(hlink) {
 	var yB = hlink.source.y, yT = hlink.target.y;
-	if (yB<(yT+10)) { hlink.source.y += k; hlink.target.y -= k;}
+	if (yB<(yT+20)) { hlink.source.y += Math.min(k,yT+20-yB); hlink.target.y -= Math.min(k,yT+20-yB);}
+	var xB = hlink.source.x, xT = hlink.target.x;
+	if (xB<(xT-20)) { hlink.source.x += k; hlink.target.x -= k;}
+	if (xB>(xT+20)) { hlink.source.x -= k; hlink.target.x += k;}
+	
   });
 
   node.attr("cx", function(d) { return d.x; })
