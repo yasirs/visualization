@@ -7,6 +7,12 @@
     <script type="text/javascript" src="d3/d3.layout.js"></script>
   </head>
   <body>
+    <div id="controlPanel">
+      <p> W: <input type="text" name="w" value="960"/></p>
+      <p> W: <input type="text" name="h" value="500"/></p>
+      <p> <button type="button" name="WHButton">Change!</button></p>
+      <p> <input type="checkbox" name="runSimul"/> - Forces</p>
+    </div>
     <div id="chart"></div>
     <script type="text/javascript">
 
@@ -21,7 +27,7 @@ var readData = function(fEdges, fHier) {
 		request.open('GET', fname, false);   
 		request.send(null);  
   
-		if (request.status == 200) {
+		if (request.status == 0) {
   			return request.responseText;
 		} else {
 			alert("Couldn't read file "+fname);
@@ -175,7 +181,7 @@ force.on("tick", function(e) {
 
 });
 
-d3.select("body").on("click", function() {
+vis.on("click", function() {
   nodes.forEach(function(o, i) {
     o.x += (Math.random() - .5) * 40;
     o.y += (Math.random() - .5) * 40;
