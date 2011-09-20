@@ -5,11 +5,12 @@
     <script type="text/javascript" src="d3/d3.js"></script>
     <script type="text/javascript" src="d3/d3.geom.js"></script>
     <script type="text/javascript" src="d3/d3.layout.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
   </head>
   <body>
     <div id="controlPanel">
-      <p> W: <input type="text" name="w" value="960"/></p>
-      <p> W: <input type="text" name="h" value="500"/></p>
+      <p> W: <input type="text" name="w" id="w" value="960"/></p>
+      <p> W: <input type="text" name="h" id="h" value="500"/></p>
       <p> <button type="button" name="WHButton">Change!</button></p>
       <p> <input type="checkbox" name="runSimul"/> - Forces</p>
     </div>
@@ -188,6 +189,19 @@ vis.on("click", function() {
   });
   force.resume();
 });
+
+
+$("html body div#controlPanel p button").click(function() {
+  alert("clicked!, w = "+$('html body div#controlPanel p input#w').val());
+  vis.attr("width", parseInt($('html body div#controlPanel p input#w').val()));
+  vis.attr("height", parseInt($('html body div#controlPanel p input#h').val()));
+});
+//$("html body div#controlPanel p button").click(funtion() {
+  //vis.width = $('html body div#controlPanel p input#w').value();
+  //vis.height = $('html body div#controlPanel p input#h').value();
+//  alert("clicked!")
+//});
+
 
     </script>
   </body>
