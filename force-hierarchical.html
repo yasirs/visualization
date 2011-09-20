@@ -11,7 +11,8 @@
     <div id="controlPanel">
       <p> W: <input type="text" name="w" id="w" value="960"/></p>
       <p> W: <input type="text" name="h" id="h" value="500"/></p>
-      <p> <button type="button" name="WHButton">Change!</button></p>
+      <p> <button type="button" name="WHButton" id="WHButton">Change!</button></p>
+      <p> <button type="button" name="resumeButton" id="resumeButton">Resume Simulation</button></p>
       <p> <input type="checkbox" name="runSimul"/> - Forces</p>
     </div>
     <div id="chart"></div>
@@ -182,20 +183,22 @@ force.on("tick", function(e) {
 
 });
 
-vis.on("click", function() {
-  nodes.forEach(function(o, i) {
-    o.x += (Math.random() - .5) * 40;
-    o.y += (Math.random() - .5) * 40;
-  });
-  force.resume();
+
+
+$("html body div#controlPanel p button#resumeButton").click(function() {
+force.resume();
 });
 
 
-$("html body div#controlPanel p button").click(function() {
+
+
+$("html body div#controlPanel p button@WHButton").click(function() {
   alert("clicked!, w = "+$('html body div#controlPanel p input#w').val());
   vis.attr("width", parseInt($('html body div#controlPanel p input#w').val()));
   vis.attr("height", parseInt($('html body div#controlPanel p input#h').val()));
 });
+
+
 //$("html body div#controlPanel p button").click(funtion() {
   //vis.width = $('html body div#controlPanel p input#w').value();
   //vis.height = $('html body div#controlPanel p input#h').value();

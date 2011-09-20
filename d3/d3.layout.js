@@ -443,6 +443,11 @@ d3.layout.force = function() {
     return force.resume();
   };
 
+  force.update = function() {
+    d3.timer(tick);
+    return force;
+  };
+
   force.resume = function() {
     alpha = .1;
     d3.timer(tick);
@@ -494,7 +499,8 @@ function d3_layout_forceDragEnd() {
 function d3_layout_forceDrag() {
   d3_layout_forceDragNode.px += d3.event.dx;
   d3_layout_forceDragNode.py += d3.event.dy;
-  d3_layout_forceDragForce.resume(); // restart annealing
+  //d3_layout_forceDragForce.resume(); // restart annealing
+  d3_layout_forceDragForce.update(); // restart annealing
 }
 
 function d3_layout_forceAccumulate(quad) {
