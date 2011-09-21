@@ -10,10 +10,10 @@
   <body>
     <div id="controlPanel">
       <p> W: <input type="text" name="w" id="w" value="960"/></p>
-      <p> W: <input type="text" name="h" id="h" value="500"/></p>
+      <p> H: <input type="text" name="h" id="h" value="500"/></p>
       <p> <button type="button" name="WHButton" id="WHButton">Change!</button></p>
-      <p> <button type="button" name="resumeButton" id="resumeButton">Resume Simulation</button></p>
-      <p> <input type="checkbox" name="runSimul"/> - Forces</p>
+      <p> <button type="button" name="resumeButton" id="resumeButton">Resume Simulation</button> <button type="button" name="stopButton" id="stopButton">Stop Simulation</button> </p>
+      <p> <input type="checkbox" name="runSimul" id="runSimul"/> - Forces</p>
     </div>
     <div id="chart"></div>
     <script type="text/javascript">
@@ -106,10 +106,6 @@ var nodes = dataRead[0];;
 var ordLinks = dataRead[1];
 var hLinks = dataRead[2];
 
-//var nodes = [{"name":"a","group":0},{"name":"b","group":0},{"name":"c","group":1},{"name":"d","group":1},{"name":"e","group":2},{"name":"0","group":3},{"name":"1","group":3},{"name":2,"group":3},{"name":"3","group":3}];
-//var ordLinks = [{"source":0,"target":1},{"source":2,"target":4},{"source":3,"target":4}];
-//var hLinks = [{"source":0,"target":5},{"source":1,"target":5},{"source":2,"target":6},{"source":3,"target":6},{"source":4,"target":7},{"source":6,"target":7},{"source":5,"target":8},{"source":7,"target":8}]
-//var ordLinks=[];
 var vis = d3.select("#chart").append("svg:svg")
     .attr("width", w)
     .attr("height", h);
@@ -126,12 +122,13 @@ var force = d3.layout.force()
 var link = vis.selectAll("line.link")
       .data(ordLinks.concat(hLinks))
     .enter().append("svg:line")
-      .attr("stroke", "#999")
+      .attr("stroke", function(d) {if (d.source.y>d.target.y) return "#900"; else return "#999";})
       .style("stroke-width", 3)
       .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+      .attr("y2", function(d) { return d.target.y; })
+      .attr("type", function(d) {return d.type;});
 
 
 var node = vis.selectAll("circle.node")
@@ -161,13 +158,17 @@ vis.style("opacity", 1e-6)
 force.on("tick", function(e) {
 
   // Push different nodes in different directions for clustering.
-  var k = 40 * e.alpha;
+  var yk = 1000 * e.alpha;
+  var xk = 4 * e.alpha;
   hLinks.forEach(function(hlink) {
 	var yB = hlink.source.y, yT = hlink.target.y;
-	if (yB<(yT+20)) { hlink.source.y += Math.min(k,yT+20-yB); hlink.target.y -= Math.min(k,yT+20-yB);}
+	if (yB>(yT-50)) {
+          hlink.source.y -= Math.min(yk,50+yB-yT);
+          hlink.target.y += Math.min(yk,50+yB-yT);
+        }
 	var xB = hlink.source.x, xT = hlink.target.x;
-	if (xB<(xT-20)) { hlink.source.x += Math.min(k,xT-20-xB); hlink.target.x -= Math.min(k,xT-20-xB);}
-	if (xB>(xT+20)) { hlink.source.x -= Math.min(k,xB-xT-20); hlink.target.x += Math.min(k,xB-xT-20);}
+	if (xB<(xT-20)) { hlink.source.x += Math.min(xk,xT-20-xB); hlink.target.x -= Math.min(xk,xT-20-xB);}
+	if (xB>(xT+20)) { hlink.source.x -= Math.min(xk,xB-xT-20); hlink.target.x += Math.min(xk,xB-xT-20);}
 	
   });
 
@@ -177,7 +178,8 @@ force.on("tick", function(e) {
   link.attr("x1", function(d) { return d.source.x; })
        .attr("y1", function(d) { return d.source.y; })
        .attr("x2", function(d) { return d.target.x; })
-       .attr("y2", function(d) { return d.target.y; });
+       .attr("y2", function(d) { return d.target.y; })
+       .attr("stroke", function(d) {if (d.type=="ordinary") return "#999"; else {if (d.source.y>d.target.y) return "#900"; else return "#999";}});
 
 
 
@@ -190,6 +192,9 @@ force.resume();
 });
 
 
+$("html body div#controlPanel p button#stopButton").click(function() {
+force.stop();
+});
 
 
 $("html body div#controlPanel p button#WHButton").click(function() {
@@ -197,13 +202,6 @@ $("html body div#controlPanel p button#WHButton").click(function() {
   vis.attr("width", parseInt($('html body div#controlPanel p input#w').val()));
   vis.attr("height", parseInt($('html body div#controlPanel p input#h').val()));
 });
-
-
-//$("html body div#controlPanel p button").click(funtion() {
-  //vis.width = $('html body div#controlPanel p input#w').value();
-  //vis.height = $('html body div#controlPanel p input#h').value();
-//  alert("clicked!")
-//});
 
 
     </script>
